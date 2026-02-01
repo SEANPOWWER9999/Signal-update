@@ -1,8 +1,9 @@
-{
-  "name": "signal-update",
-  "main": "src/index.js",
-  "compatibility_date": "2026-01-31",
-  "observability": {
-    "enabled": true
-  }
-}
+name = "signalupdate"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+# This flag is the most important part for the security library
+compatibility_flags = [ "nodejs_compat" ]
+
+[vars]
+AUDIENCE = "688e8e2293e303b0483d65e6395eaa5efa0c30a5d734e63fc70d0aaf35e02fa4"
